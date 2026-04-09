@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+		<PrivateAssets>all</PrivateAssets>
+		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+	<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SeismicFlow.Domain\SeismicFlow.Domain.csproj" />
+    <ProjectReference Include="..\SeismicFlow.Infrastructure\SeismicFlow.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\SeismicFlow.Application\SeismicFlow.Application.csproj" />
+    <ProjectReference Include="..\SeismicFlow.Infrastructure.External\SeismicFlow.Infrastructure.External.csproj" />
+    <ProjectReference Include="..\SeismicFlow.Shared\SeismicFlow.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

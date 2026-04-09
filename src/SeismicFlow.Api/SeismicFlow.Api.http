@@ -1,0 +1,6 @@
+@SeismicFlow.Api_HostAddress = http://localhost:5250
+
+GET {{SeismicFlow.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

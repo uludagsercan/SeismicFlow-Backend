@@ -1,0 +1,107 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: sf-postgres
+    environment:
+      POSTGRES_USER:     sf_master
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB:       seismicflow_master
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sf_master -d seismicflow_master"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: sf-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN:          admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB:                   postgres
+      KC_DB_URL:               jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME:          sf_master
+      KC_DB_PASSWORD:          ${POSTGRES_PASSWORD:-postgres}
+      KC_HOSTNAME_STRICT:      false
+      KC_HTTP_ENABLED:         true
+      KC_HEALTH_ENABLED:       true
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+    restart: unless-stopped
+  mosquitto:
+    build:
+      context: ./mosquitto
+      dockerfile: Dockerfile
+    container_name: sf-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/etc/mosquitto/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+  api:
+    build:
+      context: ../SeismicFlowServer
+      dockerfile: src/SeismicFlow.Api/Dockerfile
+    container_name: sf-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__MasterDb: "Host=postgres;Port=5432;Database=seismicflow_master;Username=sf_master;Password=${POSTGRES_PASSWORD:-postgres};"
+      Keycloak__Authority:         http://keycloak:8080/realms/seismicflow
+      Keycloak__Audience:          seismicflow-api
+      Keycloak__BaseUrl:           http://keycloak:8080
+      Keycloak__Realm:             seismicflow
+      Keycloak__AdminClientId:     seismicflow-admin
+      Keycloak__AdminClientSecret: ${KEYCLOAK_CLIENT_SECRET:-secret}
+      Keycloak__AdminUser:         admin
+      Keycloak__AdminPassword:     ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      TENANT_DB_PASSWORD_ACME:     ${TENANT_DB_PASSWORD_ACME:-postgres}
+      Mqtt__Host: mosquitto
+      Mqtt__Port: 1883
+      Mqtt__Username: sf-consumer
+      Mqtt__Password: sf-consumer-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/live HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  keycloak_data:
+  mosquitto_data:
+  mosquitto_log:

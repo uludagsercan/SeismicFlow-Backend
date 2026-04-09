@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Docker/">
+    <File Path=".env" />
+    <File Path="docker-compose.yml" />
+    <File Path="init-keycloak-db.sql" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Api/SeismicFlow.Api.csproj" />
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Application/SeismicFlow.Application.csproj" />
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Domain/SeismicFlow.Domain.csproj" />
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Infrastructure.External/SeismicFlow.Infrastructure.External.csproj" />
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Infrastructure.Persistence/SeismicFlow.Infrastructure.Persistence.csproj" />
+    <Project Path="../SeismicFlowServer/src/SeismicFlow.Shared/SeismicFlow.Shared.csproj" />
+  </Folder>
+</Solution>
