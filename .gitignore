@@ -1,0 +1,42 @@
+# ── .NET build artifacts ──────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+
+# ── Published output ──────────────────────────────────────────────────────────
+publish/
+out/
+
+# ── NuGet ────────────────────────────────────────────────────────────────────
+*.nupkg
+.nuget/
+
+# ── Secrets & environment ────────────────────────────────────────────────────
+.env
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# .NET user secrets
+src/**/Properties/launchSettings.json
+
+# ── Mosquitto runtime data ────────────────────────────────────────────────────
+mosquitto/data/
+mosquitto/log/
+
+# ── OS artifacts ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Rider / JetBrains ────────────────────────────────────────────────────────
+.idea/
+*.iml
+
+# ── VSCode ───────────────────────────────────────────────────────────────────
+.vscode/
+
+# ── Claude Code ──────────────────────────────────────────────────────────────
+.claude/
